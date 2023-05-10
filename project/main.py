@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from .models import Restaurant, MenuItem
+from .models import Restaurant, MenuItem, User
 from sqlalchemy import asc
 from . import db
 
@@ -107,3 +107,33 @@ def deleteMenuItem(restaurant_id,menu_id):
         return redirect(url_for('main.showMenu', restaurant_id = restaurant_id))
     else:
         return render_template('deleteMenuItem.html', item = itemToDelete)
+
+
+# ````````````````
+# new input
+
+
+from flask import render_template, request, redirect, url_for, session, flash
+from werkzeug.security import check_password_hash
+
+
+
+@main.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        # Verify the user credentials
+        user = User.query.filter_by(username=username).first()
+        if user is None or not check_password_hash(user.password, password):
+            error = 'Invalid username or password'
+        else:
+            flash('Logged in successfully')
+            # Add user to the session
+            session['user_id'] = user.id
+            return redirect(url_for('main.showRestaurants'))
+
+    return render_template('login.html', error=error)
+

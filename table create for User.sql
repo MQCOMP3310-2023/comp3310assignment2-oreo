@@ -1,0 +1,10 @@
+CREATE TABLE Users (
+    UserID INT NOT NULL,
+    Username VARCHAR(64) NOT NULL,
+    PasswordHash VARCHAR(128) NOT NULL,
+    FirstName VARCHAR(250) NOT NULL,
+    LastName VARCHAR(250) NOT NULL,
+    Type INT NOT NULL,
+    DOB DATETIME NOT NULL,
+    PRIMARY KEY (UserID)
+);

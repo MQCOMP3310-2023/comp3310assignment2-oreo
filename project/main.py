@@ -157,7 +157,10 @@ def signup():
         if existing_user:
             flash('Username already exists. Please choose a different username.')
             return redirect(url_for('main.signup'))
+            
         
+    
+
         # Create a new user
         new_user = User(
             email=email,
@@ -165,7 +168,7 @@ def signup():
             FirstName=first_name,
             LastName=last_name,
             PasswordHash=generate_password_hash(password),
-            Role='Guest',  # By default, set the user type to 'guest'
+            Role='Guest', 
             DOB=dob
         )
 
@@ -174,7 +177,7 @@ def signup():
         db.session.commit()
 
         flash('Account created successfully')
-        return redirect(url_for('main.login'))
+        return redirect('signup.html')
 
     return render_template('signup.html')
 

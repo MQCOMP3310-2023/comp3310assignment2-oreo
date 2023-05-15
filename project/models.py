@@ -1,11 +1,12 @@
 from . import db
+from sqlalchemy import Table, Column, Integer, ForeignKey
+from sqlalchemy.orm import relationship
 
 class Restaurant(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
-    # new input 
-    owner_id = db.Column(db.Integer, db.ForeignKey('users.UserID'))
-    owner = db.relationship('User', backref='restaurants')
+#   new content
+
 
     @property
     def serialize(self):
@@ -40,16 +41,22 @@ class MenuItem(db.Model):
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
+user_restaurant_association = Table('user_restaurant_association', db.Model.metadata,
+    Column('user_id', Integer, ForeignKey('Users.UserID')),
+    Column('restaurant_id', Integer, ForeignKey('restaurant.id'))
+)
+
 class User(db.Model):
     __tablename__ = 'Users'
-    UserID = db.Column(db.Integer, primary_key=True)
+    UserID = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(64), nullable=False)
+    email = db.Column(db.String(250), nullable=False)  
     PasswordHash = db.Column(db.String(128), nullable=False)
     FirstName = db.Column(db.String(250), nullable=False)
     LastName = db.Column(db.String(250), nullable=False)
-    Type = db.Column(db.Integer, nullable=False)
+    Role = db.Column(db.Integer, nullable=False)
     DOB = db.Column(db.DateTime, nullable=False)
-
+    restaurants = db.relationship('Restaurant', secondary=user_restaurant_association, backref='owners')
 
     def __repr__(self):
         return '<User {}>'.format(self.username)

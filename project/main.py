@@ -111,10 +111,10 @@ def deleteMenuItem(restaurant_id,menu_id):
 
 # ````````````````
 # new input
-
+from datetime import datetime
 
 from flask import render_template, request, redirect, url_for, session, flash
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 
 
@@ -134,7 +134,7 @@ def login():
             session['user_id'] = user.UserID
             return redirect(url_for('index'))
 
-    return render_template('login.html', error=error)
+    return render_template('main.html', error=error)
 
 
 @main.route('/signup', methods=['GET', 'POST'])
@@ -144,7 +144,13 @@ def signup():
         username = request.form['username']
         first_name = request.form['first_name']
         last_name = request.form['last_name']
-        dob = request.form['dob']
+        dob = datetime.strptime(request.form['dob'], '%Y-%m-%d')
+        password = request.form['password']
+
+        # # Validate input
+        # if not all([email, username, first_name, last_name, dob]):
+        #     flash('Please fill in all the required fields.')
+        #     return redirect(url_for('main.signup'))
 
         # Check if the username already exists in the database
         existing_user = User.query.filter_by(username=username).first()
@@ -158,10 +164,10 @@ def signup():
             username=username,
             FirstName=first_name,
             LastName=last_name,
-            Type='guest',  # By default, set the user type to 'guest'
+            PasswordHash=generate_password_hash(password),
+            Role='Guest',  # By default, set the user type to 'guest'
             DOB=dob
         )
-        new_user.set_password(password)  # Hash and store the password
 
         # Add the user to the database
         db.session.add(new_user)

@@ -7,6 +7,7 @@
     <div class="col-md-6 text-right">
         {% if current_user %}
             <p>Welcome, {{ current_user.username }}!</p>
+            <a href="{{ url_for('main.logout') }}">Logout</a>
         {% else %}
             <form class="form-inline" method="post" action="{{ url_for('main.login') }}">
                 <div class="form-group">

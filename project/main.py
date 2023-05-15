@@ -127,13 +127,50 @@ def login():
 
         # Verify the user credentials
         user = User.query.filter_by(username=username).first()
-        if user is None or not check_password_hash(user.password, password):
+        if user is None or not user.check_password(password):
             error = 'Invalid username or password'
         else:
             flash('Logged in successfully')
-            # Add user to the session
-            session['user_id'] = user.id
-            return redirect(url_for('main.showRestaurants'))
+            session['user_id'] = user.UserID
+            return redirect(url_for('index'))
 
     return render_template('login.html', error=error)
+
+
+@main.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        email = request.form['email']
+        username = request.form['username']
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        dob = request.form['dob']
+
+        # Check if the username already exists in the database
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            flash('Username already exists. Please choose a different username.')
+            return redirect(url_for('main.signup'))
+        
+        # Create a new user
+        new_user = User(
+            email=email,
+            username=username,
+            FirstName=first_name,
+            LastName=last_name,
+            Type='guest',  # By default, set the user type to 'guest'
+            DOB=dob
+        )
+        new_user.set_password(password)  # Hash and store the password
+
+        # Add the user to the database
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash('Account created successfully')
+        return redirect(url_for('main.login'))
+
+    return render_template('signup.html')
+
+  
 

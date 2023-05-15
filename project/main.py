@@ -158,7 +158,11 @@ def signup():
             flash('Username already exists. Please choose a different username.')
             return redirect(url_for('main.signup'))
             
-        
+        # Check if the email or username already exists in the database
+        existing_email = User.query.filter_by(email=email).first()
+        if existing_email:
+            flash('Email already exists. Please choose a different email.')
+            return redirect(url_for('main.signup'))
     
 
         # Create a new user

@@ -9,8 +9,18 @@ main = Blueprint('main', __name__)
 @main.route('/')
 @main.route('/restaurant/')
 def showRestaurants():
-  restaurants = db.session.query(Restaurant).order_by(asc(Restaurant.name))
-  return render_template('restaurants.html', restaurants = restaurants)
+    restaurants = db.session.query(Restaurant).order_by(asc(Restaurant.name))
+  # Print out the restaurants and their ratings
+    for restaurant in restaurants:
+        print(f"Restaurant: {restaurant.name}")
+    for rating in restaurant.ratings:
+        print(f"Rating: {rating.value}")
+
+    
+
+
+    return render_template('restaurants.html', restaurants = restaurants)
+
 
 #Create a new restaurant
 @main.route('/restaurant/new/', methods=['GET','POST'])
@@ -112,30 +122,43 @@ def deleteMenuItem(restaurant_id,menu_id):
 # ````````````````
 # new input
 from datetime import datetime
-
-from flask import render_template, request, redirect, url_for, session, flash
+from flask_login import current_user, login_user, LoginManager
+from flask import render_template, request, redirect, url_for, Flask, session, flash
 from werkzeug.security import check_password_hash, generate_password_hash
 
+app = Flask(__name__)
+
+# Create an instance of the LoginManager
+login_manager = LoginManager()
+
+# Register the user loader function
+@login_manager.user_loader
+def load_user(user_id):
+    # Query the User object based on the user_id
+    return User.query.get(int(user_id))
+
+# Initialize the login manager
+login_manager.init_app(app)
 
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
-    error = None
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
 
         # Verify the user credentials
         user = User.query.filter_by(username=username).first()
-        if user is None or not user.check_password(password):
-            error = 'Invalid username or password'
+        if user and check_password_hash(user.PasswordHash, password):
+            # Password is correct, log in the user
+            login_user(user)
+            flash('Logged in successfully.')
+            return redirect(url_for('main.showRestaurants'))
         else:
-            flash('Logged in successfully')
-            session['user_id'] = user.UserID
-            return redirect(url_for('index'))
-
-    return render_template('main.html', error=error)
-
+            # Invalid credentials
+            flash('Invalid username or password.')
+    
+    return redirect(url_for('main.showRestaurants'))
 
 @main.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -146,11 +169,6 @@ def signup():
         last_name = request.form['last_name']
         dob = datetime.strptime(request.form['dob'], '%Y-%m-%d')
         password = request.form['password']
-
-        # # Validate input
-        # if not all([email, username, first_name, last_name, dob]):
-        #     flash('Please fill in all the required fields.')
-        #     return redirect(url_for('main.signup'))
 
         # Check if the username already exists in the database
         existing_user = User.query.filter_by(username=username).first()
@@ -180,10 +198,23 @@ def signup():
         db.session.add(new_user)
         db.session.commit()
 
-        flash('Account created successfully')
-        return redirect('signup.html')
+        # Render the login template for GET requests
+        flash('Please log in to continue.')
+        return redirect('/')
 
     return render_template('signup.html')
 
-  
+from flask_login import login_required
+from .models import Rating
 
+@main.route('/restaurant/<int:restaurant_id>/rate', methods=['POST'])
+def rate_restaurant(restaurant_id):
+    value = request.form['value']
+
+    # Create a new rating
+    new_rating = Rating(value=value, restaurant_id=restaurant_id)
+    db.session.add(new_rating)
+    db.session.commit()
+    flash('Your rating has been submitted.')
+
+    return redirect(url_for('main.showMenu', restaurant_id=restaurant_id))

@@ -7,6 +7,19 @@
 	<div class="row banner menu">
 		<div class="col-md-11 col-md-offset-1 padding-none">
 			<h1>{{ restaurant.name }}
+				<!-- Allow anyone to submit ratings -->
+   Rate this restaurant:
+   <form action="{{ url_for('main.rate_restaurant', restaurant_id=restaurant.id) }}" method="post">
+     <select name="value" id="value">
+       <option value="1">1 star</option>
+       <option value="2">2 stars</option>
+       <option value="3">3 stars</option>
+       <option value="4">4 stars</option>
+       <option value="5">5 stars</option>
+     </select>
+     <input type="submit" value="Submit">
+   </form>
+
 			<figure class="creator">
 				<img src="{{ url_for('static', filename='blank_user.gif') }}">
 				<figcaption>Menu creator's name goes here</figcaption>

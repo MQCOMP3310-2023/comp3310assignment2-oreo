@@ -6,7 +6,8 @@ class Restaurant(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
 #   new content
-
+    ratings = db.relationship('Rating', backref='rated_restaurant', lazy=True)
+    
 
     @property
     def serialize(self):
@@ -46,7 +47,8 @@ user_restaurant_association = Table('user_restaurant_association', db.Model.meta
     Column('restaurant_id', Integer, ForeignKey('restaurant.id'))
 )
 
-class User(db.Model):
+from flask_login import UserMixin
+class User(UserMixin, db.Model):
     __tablename__ = 'Users'
     UserID = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(64), nullable=False)
@@ -57,7 +59,14 @@ class User(db.Model):
     Role = db.Column(db.Integer, nullable=False)
     DOB = db.Column(db.DateTime, nullable=False)
     restaurants = db.relationship('Restaurant', secondary=user_restaurant_association, backref='owners')
+    @property
+    def is_active(self):
+        # Return True if the user account is active
+        return True
 
+    def get_id(self):
+        return str(self.UserID)
+    
     def __repr__(self):
         return '<User {}>'.format(self.username)
 
@@ -68,4 +77,14 @@ class User(db.Model):
     # Verify the password entered by the user
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+class Rating(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    value = db.Column(db.Integer, nullable=False)
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.UserID'), nullable=True)
+
+    # Change the backref name from 'ratings' to 'restaurant_ratings'
+    restaurant = db.relationship('Restaurant', backref=db.backref('restaurant_ratings', lazy=True))
+    user = db.relationship('User', backref=db.backref('ratings', lazy=True))
 

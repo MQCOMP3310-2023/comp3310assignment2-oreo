@@ -2,13 +2,15 @@ from . import db
 from sqlalchemy import Table, Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 
+user_restaurant_association = Table('user_restaurant_association', db.Model.metadata,
+    Column('user_id', Integer, ForeignKey('Users.UserID')),
+    Column('restaurant_id', Integer, ForeignKey('restaurant.id'))
+)
+
 class Restaurant(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
-# #   new content
-#     ratings = db.relationship('Rating', backref='rated_restaurant', lazy=True)
-    
-
+    owners = db.relationship('User', secondary=user_restaurant_association)
     @property
     def serialize(self):
        """Return object data in easily serializeable format"""
@@ -42,10 +44,7 @@ class MenuItem(db.Model):
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
-user_restaurant_association = Table('user_restaurant_association', db.Model.metadata,
-    Column('user_id', Integer, ForeignKey('Users.UserID')),
-    Column('restaurant_id', Integer, ForeignKey('restaurant.id'))
-)
+
 
 from flask_login import UserMixin
 class User(UserMixin, db.Model):
@@ -58,7 +57,7 @@ class User(UserMixin, db.Model):
     LastName = db.Column(db.String(250), nullable=False)
     Role = db.Column(db.Integer, nullable=False)
     DOB = db.Column(db.DateTime, nullable=False)
-    restaurants = db.relationship('Restaurant', secondary=user_restaurant_association, backref='owners')
+    restaurants = db.relationship('Restaurant', secondary=user_restaurant_association)
     @property
     def is_active(self):
         # Return True if the user account is active

@@ -7,8 +7,15 @@
 	<div class="row banner menu">
 		<div class="col-md-11 col-md-offset-1 padding-none">
 			<h1>{{ restaurant.name }}
-			
+				<a>{% with total = restaurant.restaurant_ratings|sum(attribute='value') %}
 
+				{% if total > 0 %}
+				 Average rating: {{ (total / (restaurant.restaurant_ratings|length))|round(1) }}/5
+				{% else %}
+				 No ratings yet.
+				{% endif %}
+				{% endwith %}
+				</a>
 			<figure class="creator">
 				<img src="{{ url_for('static', filename='blank_user.gif') }}">
 				<figcaption>Menu creator's name goes here</figcaption>

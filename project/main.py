@@ -2,6 +2,12 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for
 from .models import Restaurant, MenuItem, User
 from sqlalchemy import asc
 from . import db
+# additional imports 
+from datetime import datetime
+from flask_login import current_user, login_user
+from flask import flash
+from werkzeug.security import check_password_hash, generate_password_hash
+
 
 main = Blueprint('main', __name__)
 
@@ -19,8 +25,16 @@ def newRestaurant():
   if request.method == 'POST':
       newRestaurant = Restaurant(name = request.form['name'])
       db.session.add(newRestaurant)
-      flash('New Restaurant %s Successfully Created' % newRestaurant.name)
       db.session.commit()
+
+      db.session.execute(
+            user_restaurant_association.insert().values(
+                user_id=current_user.UserID,
+                restaurant_id=newRestaurant.id
+            )
+        )
+      db.session.commit()
+      flash('New Restaurant %s Successfully Created' % newRestaurant.name)
       return redirect(url_for('main.showRestaurants'))
   else:
       return render_template('newRestaurant.html')
@@ -50,13 +64,23 @@ def deleteRestaurant(restaurant_id):
   else:
     return render_template('deleteRestaurant.html',restaurant = restaurantToDelete)
 
+
+from .models import user_restaurant_association
 #Show a restaurant menu
 @main.route('/restaurant/<int:restaurant_id>/')
 @main.route('/restaurant/<int:restaurant_id>/menu/')
 def showMenu(restaurant_id):
     restaurant = db.session.query(Restaurant).filter_by(id = restaurant_id).one()
     items = db.session.query(MenuItem).filter_by(restaurant_id = restaurant_id).all()
-    return render_template('menu.html', items = items, restaurant = restaurant)
+    # additional 
+    association = db.session.execute(
+    user_restaurant_association.select().where(
+        (user_restaurant_association.c.user_id == current_user.UserID) &
+        (user_restaurant_association.c.restaurant_id == restaurant_id)
+    )).first()
+
+    is_owner = association is not None
+    return render_template('menu.html', items = items, restaurant = restaurant,is_owner=is_owner)
      
 
 
@@ -112,12 +136,6 @@ def deleteMenuItem(restaurant_id,menu_id):
 
 # ````````````````
 # new input
-from datetime import datetime
-from flask_login import current_user, login_user
-from flask import render_template, request, redirect, url_for, Flask, session, flash
-from werkzeug.security import check_password_hash, generate_password_hash
-
-
 @main.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -175,7 +193,7 @@ def signup():
             FirstName=first_name,
             LastName=last_name,
             PasswordHash=generate_password_hash(password),
-            Role='Guest', 
+            Role=0, 
             DOB=dob
         )
 

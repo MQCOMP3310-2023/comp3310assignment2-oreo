@@ -5,8 +5,8 @@ from sqlalchemy.orm import relationship
 class Restaurant(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
-#   new content
-    ratings = db.relationship('Rating', backref='rated_restaurant', lazy=True)
+# #   new content
+#     ratings = db.relationship('Rating', backref='rated_restaurant', lazy=True)
     
 
     @property

@@ -7,18 +7,7 @@
 	<div class="row banner menu">
 		<div class="col-md-11 col-md-offset-1 padding-none">
 			<h1>{{ restaurant.name }}
-				<!-- Allow anyone to submit ratings -->
-   Rate this restaurant:
-   <form action="{{ url_for('main.rate_restaurant', restaurant_id=restaurant.id) }}" method="post">
-     <select name="value" id="value">
-       <option value="1">1 star</option>
-       <option value="2">2 stars</option>
-       <option value="3">3 stars</option>
-       <option value="4">4 stars</option>
-       <option value="5">5 stars</option>
-     </select>
-     <input type="submit" value="Submit">
-   </form>
+			
 
 			<figure class="creator">
 				<img src="{{ url_for('static', filename='blank_user.gif') }}">
@@ -54,12 +43,26 @@
 				<button class="btn btn-default" id="new-menu-item">
 					<span class="glyphicon glyphicon-glass" aria-hidden="true"></span>Add Menu Item
 				</button>
-			</a>
+			</a>	
 						<a href="{{url_for('main.deleteRestaurant', restaurant_id = restaurant.id )}}">
 				<button class="btn btn-default delete" id="delete-restaurant">
 					<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>Delete Restaurant
 				</button>
 			</a>
+			<!-- Allow anyone to submit ratings -->
+			<div style="display: inline-block;">
+				Rate this restaurant:
+				<form action="{{ url_for('main.rate_restaurant', restaurant_id=restaurant.id) }}" method="post">
+					<select name="value" id="value">
+						<option value="1">1 star</option>
+						<option value="2">2 stars</option>
+						<option value="3">3 stars</option>
+						<option value="4">4 stars</option>
+						<option value="5">5 stars</option>
+					</select>
+				<input type="submit" value="Submit">
+				</form>
+			</div>
 		</div>
 		<div class="col-md-7"></div>
 	</div>

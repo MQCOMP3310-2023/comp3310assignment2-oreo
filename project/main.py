@@ -10,15 +10,6 @@ main = Blueprint('main', __name__)
 @main.route('/restaurant/')
 def showRestaurants():
     restaurants = db.session.query(Restaurant).order_by(asc(Restaurant.name))
-  # Print out the restaurants and their ratings
-    for restaurant in restaurants:
-        print(f"Restaurant: {restaurant.name}")
-    for rating in restaurant.ratings:
-        print(f"Rating: {rating.value}")
-
-    
-
-
     return render_template('restaurants.html', restaurants = restaurants)
 
 

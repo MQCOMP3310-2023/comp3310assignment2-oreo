@@ -1,3 +1,4 @@
+
 {% extends "main.html" %}
 {% block content %}
 {% include "header.html" %}
@@ -48,23 +49,18 @@
  <div class="col-md-10 restaurant-list">
    <!-- Display the restaurant name -->
    <h3>{{restaurant.name}}</h3>
-	<!-- Display the average rating for the restaurant -->
-{% with total = 0 %}
-{% for rating in restaurant.ratings %}
- {% set total = total + rating.value %}
-{% endfor %}
+<!-- Display the average rating for the restaurant -->
+{% with total = restaurant.restaurant_ratings|sum(attribute='value') %}
+
 {% if total > 0 %}
- Average rating: {{ (total / len(restaurant.ratings))|round(1) }}/5
+ Average rating: {{ (total / (restaurant.restaurant_ratings|length))|round(1) }}/5
 {% else %}
  No ratings yet.
 {% endif %}
 {% endwith %}
-
-
  </div>
  <div class="col-md-1"></div>
  </div>
  </a>
-   
- {% endfor %}
+{% endfor %}
 {% endblock %}

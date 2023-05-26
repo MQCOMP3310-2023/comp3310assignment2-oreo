@@ -161,3 +161,27 @@ u }
 	text-align: center;
 
 }
+
+/* new */
+.star-ratings {
+	unicode-bidi: bidi-override;
+	direction: rtl;
+	font-size: 25px;
+  }
+  .star-ratings > span {
+	display: inline-block;
+	position: relative;
+  }
+  .star-ratings > span:hover:before,
+  .star-ratings > span:hover ~ span:before {
+	 content: "\2605";
+	 position: absolute;
+  }
+  .star-ratings-css {
+	width: 0;
+  }
+  .star-ratings-css:before {
+	content: "\2605\2605\2605\2605\2605";
+  }
+  
+

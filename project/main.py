@@ -117,20 +117,6 @@ from flask_login import current_user, login_user, LoginManager
 from flask import render_template, request, redirect, url_for, Flask, session, flash
 from werkzeug.security import check_password_hash, generate_password_hash
 
-app = Flask(__name__)
-
-# Create an instance of the LoginManager
-login_manager = LoginManager()
-
-# Register the user loader function
-@login_manager.user_loader
-def load_user(user_id):
-    # Query the User object based on the user_id
-    return User.query.get(int(user_id))
-
-# Initialize the login manager
-login_manager.init_app(app)
-
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():

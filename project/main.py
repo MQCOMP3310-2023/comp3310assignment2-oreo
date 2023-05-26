@@ -34,6 +34,8 @@ def newRestaurant():
             )
         )
       db.session.commit()
+      current_user.Role = 1  # change the role of the current user
+      db.session.commit()  # commit the changes to the database
       flash('New Restaurant %s Successfully Created' % newRestaurant.name)
       return redirect(url_for('main.showRestaurants'))
   else:

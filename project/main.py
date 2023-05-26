@@ -113,7 +113,7 @@ def deleteMenuItem(restaurant_id,menu_id):
 # ````````````````
 # new input
 from datetime import datetime
-from flask_login import current_user, login_user, LoginManager
+from flask_login import current_user, login_user
 from flask import render_template, request, redirect, url_for, Flask, session, flash
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -135,6 +135,14 @@ def login():
             # Invalid credentials
             flash('Invalid username or password.')
     
+    return redirect(url_for('main.showRestaurants'))
+
+from flask_login import logout_user
+
+@main.route('/logout')
+def logout():
+    logout_user()
+    flash('Logged out successfully.')
     return redirect(url_for('main.showRestaurants'))
 
 @main.route('/signup', methods=['GET', 'POST'])

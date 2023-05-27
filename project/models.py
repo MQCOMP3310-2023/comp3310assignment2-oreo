@@ -10,7 +10,7 @@ user_restaurant_association = Table('user_restaurant_association', db.Model.meta
 class Restaurant(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
-    owners = db.relationship('User', secondary=user_restaurant_association)
+    owners = db.relationship('User', secondary=user_restaurant_association,overlaps="restaurant")
     @property
     def serialize(self):
        """Return object data in easily serializeable format"""
@@ -57,7 +57,7 @@ class User(UserMixin, db.Model):
     LastName = db.Column(db.String(250), nullable=False)
     Role = db.Column(db.Integer, nullable=False)
     DOB = db.Column(db.DateTime, nullable=False)
-    restaurants = db.relationship('Restaurant', secondary=user_restaurant_association)
+    restaurants = db.relationship('Restaurant', secondary=user_restaurant_association,overlaps="owners")
     @property
     def is_active(self):
         # Return True if the user account is active

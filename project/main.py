@@ -168,6 +168,8 @@ def logout():
     flash('Logged out successfully.')
     return redirect(url_for('main.showRestaurants'))
 
+
+import re
 @main.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -177,7 +179,26 @@ def signup():
         last_name = request.form['last_name']
         dob = datetime.strptime(request.form['dob'], '%Y-%m-%d')
         password = request.form['password']
-
+         # Check if the password meets the complexity requirements
+        if len(password) < 8:
+            flash('Password must be at least 8 characters long.')
+            return redirect(url_for('main.signup'))
+        
+        if not re.search(r'[A-Z]', password):
+            flash('Password must contain at least one uppercase letter.')
+            return redirect(url_for('main.signup'))
+        
+        if not re.search(r'[a-z]', password):
+            flash('Password must contain at least one lowercase letter.')
+            return redirect(url_for('main.signup'))
+        
+        if not re.search(r'\d', password):
+            flash('Password must contain at least one number.')
+            return redirect(url_for('main.signup'))
+        
+        if not re.search(r'[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?]', password):
+            flash('Password must contain at least one special character.')
+            return redirect(url_for('main.signup'))
         # Check if the username already exists in the database
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:

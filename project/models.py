@@ -82,8 +82,6 @@ class Rating(db.Model):
     value = db.Column(db.Integer, nullable=False)
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.UserID'), nullable=True)
-
-    # Change the backref name from 'ratings' to 'restaurant_ratings'
     restaurant = db.relationship('Restaurant', backref=db.backref('restaurant_ratings', lazy=True))
-    user = db.relationship('User', backref=db.backref('ratings', lazy=True))
+    # user = db.relationship('User', backref=db.backref('ratings', lazy=True))
 

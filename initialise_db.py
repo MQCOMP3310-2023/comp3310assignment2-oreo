@@ -1,7 +1,45 @@
 from project import db, create_app, models
-from project.models import Restaurant, MenuItem
-
+from project.models import Restaurant, MenuItem,User,Rating,user_restaurant_association
+from werkzeug.security import generate_password_hash
+from datetime import datetime
+from random import randint
 def populate_db():
+    
+
+    admin_user = User(
+        email='admin@example.com',
+        username='admin',
+        FirstName='Admin',
+        LastName='User',
+        PasswordHash=generate_password_hash('password'),
+        Role=2,
+        DOB=datetime(2000, 1, 1)
+    )
+    db.session.add(admin_user)
+
+    # Create a restaurant owner user
+    owner_user = User(
+        email='owner@example.com',
+        username='owner',
+        FirstName='Owner',
+        LastName='User',
+        PasswordHash=generate_password_hash('password'),
+        Role=1,
+        DOB=datetime(2000, 1, 1)
+    )
+    db.session.add(owner_user)
+
+    # Create a public user
+    public_user = User(
+        email='public@example.com',
+        username='public',
+        FirstName='Public',
+        LastName='User',
+        PasswordHash=generate_password_hash('password'),
+        Role=0,
+        DOB=datetime(2000, 1, 1)
+    )
+    db.session.add(public_user)
     #Menu for UrbanBurger
     restaurant1 = Restaurant(name = "Urban Burger")
 
@@ -203,6 +241,25 @@ def populate_db():
     
     session.add(menuItem2)
     session.commit()
+
+    # Associate the owner user with the first three restaurants
+    for restaurant_id in [restaurant1.id, restaurant2.id]:
+        db.session.execute(
+            user_restaurant_association.insert().values(
+                user_id=owner_user.UserID,
+                restaurant_id=restaurant_id
+            )
+        )
+    
+    # Generate random ratings for restaurants with IDs 1-7
+    for restaurant_id in range(1, 8):
+        for _ in range(3):
+            rating_value = randint(1, 5)
+            rating = Rating(value=rating_value, restaurant_id=restaurant_id)
+            db.session.add(rating)
+
+    # Commit the changes to the database
+    db.session.commit()
     
     print("added menu items!")
 

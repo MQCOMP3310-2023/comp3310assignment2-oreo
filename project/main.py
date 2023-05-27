@@ -75,13 +75,16 @@ def showMenu(restaurant_id):
     restaurant = db.session.query(Restaurant).filter_by(id = restaurant_id).one()
     items = db.session.query(MenuItem).filter_by(restaurant_id = restaurant_id).all()
     # additional 
-    association = db.session.execute(
-    user_restaurant_association.select().where(
-        (user_restaurant_association.c.user_id == current_user.UserID) &
-        (user_restaurant_association.c.restaurant_id == restaurant_id)
-    )).first()
-
-    is_owner = association is not None
+    # Check if the user is authenticated
+    if current_user.is_authenticated:
+        association = db.session.execute(
+            user_restaurant_association.select().where(
+                (user_restaurant_association.c.user_id == current_user.UserID) &
+                (user_restaurant_association.c.restaurant_id == restaurant_id)
+            )).first()
+        is_owner = association is not None
+    else:
+        is_owner = False
     return render_template('menu.html', items = items, restaurant = restaurant,is_owner=is_owner)
      
 

@@ -16,8 +16,8 @@ def restaurantMenuJSON(restaurant_id):
 
 @json.route('/restaurant/<restaurant_id>/menu/<int:menu_id>/JSON')
 def menuItemJSON(restaurant_id, menu_id):
-    Menu_Item = db.session.execute(text('select * from menu_item where id = ' + str(menu_id) + ' limit 1'))
-    items_list = [ i._asdict() for i in Menu_Item ]
+    menu_item = db.session.execute(text('select * from menu_item where id = ' + str(menu_id) + ' limit 1'))
+    items_list = [ i._asdict() for i in menu_item ]
     return pyjs.dumps(items_list)
 
 @json.route('/restaurant/JSON')

@@ -160,6 +160,14 @@ def editMenuItem(restaurant_id, menu_id):
 # @login_required
 def deleteMenuItem(restaurant_id, menu_id):
     restaurant = db.session.query(Restaurant).filter_by(id=restaurant_id).one()
+    # Check if the current user is the owner of the restaurant
+    association = db.session.execute(
+        user_restaurant_association.select().where(
+            (user_restaurant_association.c.user_id == current_user.UserID) &
+            (user_restaurant_association.c.restaurant_id == restaurant_id)
+        )).first()
+    if not association:
+        abort(403) # Forbidden
     item_to_delete = db.session.query(MenuItem).filter_by(id=menu_id).one()
     if request.method == 'POST':
         db.session.delete(item_to_delete)

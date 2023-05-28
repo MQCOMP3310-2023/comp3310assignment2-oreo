@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, session
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session,make_response
 from .models import Restaurant, MenuItem, User, Rating, user_restaurant_association
 from sqlalchemy import asc
 from . import db
@@ -215,7 +215,9 @@ def signup():
         # Check if the password meets the complexity requirements
         if len(password) < 8:
             flash('Password must be at least 8 characters long.')
-            return redirect(url_for('main.signup'))
+            response = make_response(render_template('signup.html'))
+            response.status_code = 400
+            return response
 
         if not re.search(r'[A-Z]', password):
             flash('Password must contain at least one uppercase letter.')

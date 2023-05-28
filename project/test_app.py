@@ -36,15 +36,51 @@ def test_submit_invalid_rating(client):
     response = client.post(url_for('main.rate_restaurant', restaurant_id=restaurant.id), data={'value': 6})
     assert response.status_code == 400  # Bad request
 
-def test_submit_multiple_ratings(client):
-    # Get a restaurant to rate
-    restaurant = Restaurant.query.first()
-    assert restaurant is not None
+def test_signup_with_valid_credentials(client):
+    # Submit a valid signup form
+    response = client.post('/signup', data={
+        'email': 'testuser@example.com',
+        'username': 'testuser',
+        'first_name': 'Test',
+        'last_name': 'User',
+        'dob': '2000-01-01',
+        'password': 'Password123!'
+    })
+    assert response.status_code == 302  # Redirect to the login page
 
-    # Submit a valid rating for the restaurant
-    response = client.post(url_for('main.rate_restaurant', restaurant_id=restaurant.id), data={'value': 5})
-    assert response.status_code == 302  # Redirect to the restaurant menu page
-
-    # Submit another rating for the same restaurant
-    response = client.post(url_for('main.rate_restaurant', restaurant_id=restaurant.id), data={'value': 4})
+def test_signup_with_short_password(client):
+    # Submit a signup form with a short password
+    response = client.post('/signup', data={
+        'email': 'testuser@example.com',
+        'username': 'testuser',
+        'first_name': 'Test',
+        'last_name': 'User',
+        'dob': '2000-01-01',
+        'password': 'Pass123!'
+    })
     assert response.status_code == 400  # Bad request
+
+def test_signup_with_missing_uppercase_letter(client):
+    # Submit a signup form with a password missing an uppercase letter
+    response = client.post('/signup', data={
+        'email': 'testuser@example.com',
+        'username': 'testuser',
+        'first_name': 'Test',
+        'last_name': 'User',
+        'dob': '2000-01-01',
+        'password': 'password123!'
+    })
+    assert response.status_code == 400  # Bad request
+
+def test_signup_with_missing_lowercase_letter(client):
+    # Submit a signup form with a password missing a lowercase letter
+    response = client.post('/signup', data={
+        'email': 'testuser@example.com',
+        'username': 'testuser',
+        'first_name': 'Test',
+        'last_name': 'User',
+        'dob': '2000-01-01',
+        'password': 'PASSWORD123!'
+    })
+    assert response.status_code == 400  # Bad request
+

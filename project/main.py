@@ -8,6 +8,7 @@ from flask_login import current_user, login_user,login_required, logout_user
 from flask import flash, abort
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
+import re
 
 main = Blueprint('main', __name__)
 

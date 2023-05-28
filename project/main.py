@@ -53,7 +53,7 @@ def new_restaurant():     #Fixed the naming conventions
         flash('New Restaurant %s Successfully Created' % new_restaurant.name)       #Fixed the naming conventions
         return redirect(url_for('main.show_restaurants'))       #Fixed the naming conventions
     else:
-        return render_template('new_restaurant.html')
+        return render_template('newRestaurant.html')
 
 # Edit a restaurant
 

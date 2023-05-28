@@ -73,7 +73,10 @@ def editRestaurant(restaurant_id):
 @login_required
 def deleteRestaurant(restaurant_id):
   restaurantToDelete = db.session.query(Restaurant).filter_by(id = restaurant_id).one()
+  ratings = db.session.query(Rating).filter_by(restaurant_id=restaurant_id).all()
   if request.method == 'POST':
+    for rating in ratings:
+            db.session.delete(rating)
     db.session.delete(restaurantToDelete)
     flash('%s Successfully Deleted' % restaurantToDelete.name)
     db.session.commit()
@@ -144,7 +147,7 @@ def editMenuItem(restaurant_id, menu_id):
 
 #Delete a menu item
 @main.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/delete', methods = ['GET','POST'])
-@login_required
+# @login_required
 def deleteMenuItem(restaurant_id,menu_id):
     restaurant = db.session.query(Restaurant).filter_by(id = restaurant_id).one()
     itemToDelete = db.session.query(MenuItem).filter_by(id = menu_id).one() 

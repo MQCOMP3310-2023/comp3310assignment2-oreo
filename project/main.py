@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for,session
 from .models import Restaurant, MenuItem, User
 from sqlalchemy import asc
 from . import db
@@ -141,6 +141,8 @@ def deleteMenuItem(restaurant_id,menu_id):
 
 # ````````````````
 # new input
+
+
 @main.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -152,6 +154,7 @@ def login():
         if user and check_password_hash(user.PasswordHash, password):
             # Password is correct, log in the user
             login_user(user)
+            session['logged_in']= True
             flash('Logged in successfully.')
             return redirect(url_for('main.showRestaurants'))
         else:
@@ -164,6 +167,7 @@ from flask_login import logout_user
 
 @main.route('/logout')
 def logout():
+    session.pop('logged_in', None)
     logout_user()
     flash('Logged out successfully.')
     return redirect(url_for('main.showRestaurants'))

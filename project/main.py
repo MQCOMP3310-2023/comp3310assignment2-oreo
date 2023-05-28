@@ -26,7 +26,7 @@ def login_required(f):
 
 @main.route('/')
 @main.route('/restaurant/')
-def show_restaurants():
+def show_restaurants():      #Fixed the naming conventions
     restaurants = db.session.query(Restaurant).order_by(asc(Restaurant.name))
     return render_template('restaurants.html', restaurants=restaurants)
 
@@ -34,25 +34,25 @@ def show_restaurants():
 # Create a new restaurant
 @main.route('/restaurant/new/', methods=['GET', 'POST'])
 @login_required
-def new_restaurant():
+def new_restaurant():     #Fixed the naming conventions
     if request.method == 'POST':
         new_restaurant = Restaurant(name=request.form['name'])
-        db.session.add(new_restaurant)
+        db.session.add(new_restaurant)      #Fixed the naming conventions
         db.session.commit()
 
         db.session.execute(
             user_restaurant_association.insert().values(
                 user_id=current_user.UserID,
-                restaurant_id=new_restaurant.id
+                restaurant_id=new_restaurant.id     #Fixed the naming conventions
             )
         )
         db.session.commit()
         current_user.Role = 1  # change the role of the current user
         db.session.commit()  # commit the changes to the database
-        flash('New Restaurant %s Successfully Created' % new_restaurant.name)
-        return redirect(url_for('main.show_restaurants'))
+        flash('New Restaurant %s Successfully Created' % new_restaurant.name)       #Fixed the naming conventions
+        return redirect(url_for('main.show_restaurants'))       #Fixed the naming conventions
     else:
-        return render_template('new_restaurant.html')
+        return render_template('new_restaurant.html')       #Fixed the naming conventions
 
 # Edit a restaurant
 
@@ -66,7 +66,7 @@ def editRestaurant(restaurant_id):
         if request.form['name']:
             edited_restaurant.name = request.form['name']
             flash('Restaurant Successfully Edited %s' % edited_restaurant.name)
-            return redirect(url_for('main.show_restaurants'))
+            return redirect(url_for('main.show_restaurants'))    #Fixed the naming conventions
     else:
         return render_template('editRestaurant.html', restaurant=edited_restaurant)
 
@@ -85,7 +85,7 @@ def deleteRestaurant(restaurant_id):
         db.session.delete(restaurant_to_delete)
         flash('%s Successfully Deleted' % restaurant_to_delete.name)
         db.session.commit()
-        return redirect(url_for('main.show_restaurants', restaurant_id=restaurant_id))
+        return redirect(url_for('main.show_restaurants', restaurant_id=restaurant_id))           #Fixed the naming conventions
     else:
         return render_template('deleteRestaurant.html', restaurant=restaurant_to_delete)
 
@@ -186,12 +186,12 @@ def login():
             login_user(user)
             session['logged_in'] = True
             flash('Logged in successfully.')
-            return redirect(url_for('main.show_restaurants'))
+            return redirect(url_for('main.show_restaurants'))        #Fixed the naming conventions
         else:
             # Invalid credentials
             flash('Invalid username or password.')
 
-    return redirect(url_for('main.show_restaurants'))
+    return redirect(url_for('main.show_restaurants'))        #Fixed the naming conventions
 
 
 @main.route('/logout')
@@ -199,7 +199,7 @@ def logout():
     session.pop('logged_in', None)
     logout_user()
     flash('Logged out successfully.')
-    return redirect(url_for('main.show_restaurants'))
+    return redirect(url_for('main.show_restaurants'))        #Fixed the naming conventions
 
 
 @main.route('/signup', methods=['GET', 'POST'])

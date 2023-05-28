@@ -47,12 +47,13 @@ def new_restaurant():
             )
         )
         db.session.commit()
-        current_user.Role = 1  # change the role of the current user
+        if current_user.Role == 0:
+            current_user.Role = 1  # change the role of the current user
         db.session.commit()  # commit the changes to the database
         flash('New Restaurant %s Successfully Created' % new_restaurant.name)
         return redirect(url_for('main.show_restaurants'))
     else:
-        return render_template('new_restaurant.html')
+        return render_template('newRestaurant.html')
 
 # Edit a restaurant
 
@@ -267,7 +268,11 @@ def signup():
 
 @main.route('/restaurant/<int:restaurant_id>/rate', methods=['POST'])
 def rate_restaurant(restaurant_id):
-    value = request.form['value']
+    value = int(request.form['value'])
+
+    # Check if the rating value is between 1 and 5
+    if value < 1 or value > 5:
+        abort(400)
 
     # Create a new rating
     new_rating = Rating(value=value, restaurant_id=restaurant_id)

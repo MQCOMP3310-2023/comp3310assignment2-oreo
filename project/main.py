@@ -11,6 +11,18 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 main = Blueprint('main', __name__)
 
+
+from functools import wraps
+from flask import abort
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('logged_in'):
+            abort(401)  
+        return f(*args, **kwargs)
+    return decorated_function
+
 #Show all restaurants
 @main.route('/')
 @main.route('/restaurant/')
@@ -21,6 +33,7 @@ def showRestaurants():
 
 #Create a new restaurant
 @main.route('/restaurant/new/', methods=['GET','POST'])
+@login_required
 def newRestaurant():
   if request.method == 'POST':
       newRestaurant = Restaurant(name = request.form['name'])
@@ -43,6 +56,7 @@ def newRestaurant():
 
 #Edit a restaurant
 @main.route('/restaurant/<int:restaurant_id>/edit/', methods = ['GET', 'POST'])
+@login_required
 def editRestaurant(restaurant_id):
   editedRestaurant = db.session.query(Restaurant).filter_by(id = restaurant_id).one()
   if request.method == 'POST':
@@ -56,6 +70,7 @@ def editRestaurant(restaurant_id):
 
 #Delete a restaurant
 @main.route('/restaurant/<int:restaurant_id>/delete/', methods = ['GET','POST'])
+@login_required
 def deleteRestaurant(restaurant_id):
   restaurantToDelete = db.session.query(Restaurant).filter_by(id = restaurant_id).one()
   if request.method == 'POST':
@@ -91,6 +106,7 @@ def showMenu(restaurant_id):
 
 #Create a new menu item
 @main.route('/restaurant/<int:restaurant_id>/menu/new/',methods=['GET','POST'])
+@login_required
 def newMenuItem(restaurant_id):
   restaurant = db.session.query(Restaurant).filter_by(id = restaurant_id).one()
   if request.method == 'POST':
@@ -104,6 +120,7 @@ def newMenuItem(restaurant_id):
 
 #Edit a menu item
 @main.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/edit', methods=['GET','POST'])
+@login_required
 def editMenuItem(restaurant_id, menu_id):
 
     editedItem = db.session.query(MenuItem).filter_by(id = menu_id).one()
@@ -127,6 +144,7 @@ def editMenuItem(restaurant_id, menu_id):
 
 #Delete a menu item
 @main.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/delete', methods = ['GET','POST'])
+@login_required
 def deleteMenuItem(restaurant_id,menu_id):
     restaurant = db.session.query(Restaurant).filter_by(id = restaurant_id).one()
     itemToDelete = db.session.query(MenuItem).filter_by(id = menu_id).one() 
@@ -251,3 +269,4 @@ def rate_restaurant(restaurant_id):
     flash('Your rating has been submitted.')
 
     return redirect(url_for('main.showMenu', restaurant_id=restaurant_id))
+

@@ -61,6 +61,16 @@ def new_restaurant():     #Fixed the naming conventions
 @main.route('/restaurant/<int:restaurant_id>/edit/', methods=['GET', 'POST'])
 @login_required
 def editRestaurant(restaurant_id):
+    
+    # Check if the current user is the owner of the restaurant
+    association = db.session.execute(
+        user_restaurant_association.select().where(
+            (user_restaurant_association.c.user_id == current_user.UserID) &
+            (user_restaurant_association.c.restaurant_id == restaurant_id)
+        )).first()
+    if not association:
+        abort(403) # Forbidden
+    
     edited_restaurant = db.session.query(
         Restaurant).filter_by(id=restaurant_id).one()
     if request.method == 'POST':
@@ -76,6 +86,16 @@ def editRestaurant(restaurant_id):
 @main.route('/restaurant/<int:restaurant_id>/delete/', methods=['GET', 'POST'])
 @login_required
 def deleteRestaurant(restaurant_id):
+    
+    # Check if the current user is the owner of the restaurant
+    association = db.session.execute(
+        user_restaurant_association.select().where(
+            (user_restaurant_association.c.user_id == current_user.UserID) &
+            (user_restaurant_association.c.restaurant_id == restaurant_id)
+        )).first()
+    if not association:
+        abort(403) # Forbidden
+    
     restaurant_to_delete = db.session.query(
         Restaurant).filter_by(id=restaurant_id).one()
     ratings = db.session.query(Rating).filter_by(
@@ -118,6 +138,16 @@ def showMenu(restaurant_id):
 @main.route('/restaurant/<int:restaurant_id>/menu/new/', methods=['GET', 'POST'])
 @login_required
 def newMenuItem(restaurant_id):
+    
+    # Check if the current user is the owner of the restaurant
+    association = db.session.execute(
+        user_restaurant_association.select().where(
+            (user_restaurant_association.c.user_id == current_user.UserID) &
+            (user_restaurant_association.c.restaurant_id == restaurant_id)
+        )).first()
+    if not association:
+        abort(403) # Forbidden
+    
     restaurant = db.session.query(Restaurant).filter_by(id=restaurant_id).one()
     if request.method == 'POST':
         new_item = MenuItem(name=request.form['name'], description=request.form['description'],
@@ -136,6 +166,15 @@ def newMenuItem(restaurant_id):
 @login_required
 def editMenuItem(restaurant_id, menu_id):
 
+    # Check if the current user is the owner of the restaurant
+    association = db.session.execute(
+        user_restaurant_association.select().where(
+            (user_restaurant_association.c.user_id == current_user.UserID) &
+            (user_restaurant_association.c.restaurant_id == restaurant_id)
+        )).first()
+    if not association:
+        abort(403) # Forbidden
+        
     edited_item = db.session.query(MenuItem).filter_by(id=menu_id).one()
     restaurant = db.session.query(Restaurant).filter_by(id=restaurant_id).one()
     if request.method == 'POST':
@@ -160,6 +199,7 @@ def editMenuItem(restaurant_id, menu_id):
 # @login_required
 def deleteMenuItem(restaurant_id, menu_id):
     restaurant = db.session.query(Restaurant).filter_by(id=restaurant_id).one()
+    
     # Check if the current user is the owner of the restaurant
     association = db.session.execute(
         user_restaurant_association.select().where(
@@ -168,6 +208,7 @@ def deleteMenuItem(restaurant_id, menu_id):
         )).first()
     if not association:
         abort(403) # Forbidden
+
     item_to_delete = db.session.query(MenuItem).filter_by(id=menu_id).one()
     if request.method == 'POST':
         db.session.delete(item_to_delete)
@@ -289,9 +330,20 @@ def signup():
 
 
 @main.route('/restaurant/<int:restaurant_id>/rate', methods=['POST'])
+@login_required
 def rate_restaurant(restaurant_id):
     value = int(request.form['value'])
 
+    # Check if the current user is the owner of the restaurant
+    association = db.session.execute(
+        user_restaurant_association.select().where(
+            (user_restaurant_association.c.user_id == current_user.UserID) &
+            (user_restaurant_association.c.restaurant_id == restaurant_id)
+        )).first()
+    if association:
+        flash('You cannot rate your own restaurant.')
+        return redirect(url_for('main.showMenu', restaurant_id=restaurant_id))
+    
     # Check if the rating value is between 1 and 5
     if value < 1 or value > 5:
         abort(400)

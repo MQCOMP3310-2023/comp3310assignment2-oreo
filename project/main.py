@@ -330,19 +330,8 @@ def signup():
 
 
 @main.route('/restaurant/<int:restaurant_id>/rate', methods=['POST'])
-@login_required
 def rate_restaurant(restaurant_id):
     value = int(request.form['value'])
-
-    # Check if the current user is the owner of the restaurant
-    association = db.session.execute(
-        user_restaurant_association.select().where(
-            (user_restaurant_association.c.user_id == current_user.UserID) &
-            (user_restaurant_association.c.restaurant_id == restaurant_id)
-        )).first()
-    if association:
-        flash('You cannot rate your own restaurant.')
-        return redirect(url_for('main.showMenu', restaurant_id=restaurant_id))
     
     # Check if the rating value is between 1 and 5
     if value < 1 or value > 5:

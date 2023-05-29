@@ -229,30 +229,42 @@ def signup():
 
         if not re.search(r'[A-Z]', password):
             flash('Password must contain at least one uppercase letter.')
-            return redirect(url_for('main.signup'))
+            response = make_response(render_template('signup.html'))
+            response.status_code = 400
+            return response
 
         if not re.search(r'[a-z]', password):
             flash('Password must contain at least one lowercase letter.')
-            return redirect(url_for('main.signup'))
+            response = make_response(render_template('signup.html'))
+            response.status_code = 400
+            return response
 
         if not re.search(r'\d', password):
             flash('Password must contain at least one number.')
-            return redirect(url_for('main.signup'))
+            response = make_response(render_template('signup.html'))
+            response.status_code = 400
+            return response
 
         if not re.search(r'[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?]', password):
             flash('Password must contain at least one special character.')
-            return redirect(url_for('main.signup'))
+            response = make_response(render_template('signup.html'))
+            response.status_code = 400
+            return response
         # Check if the username already exists in the database
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
             flash('Username already exists. Please choose a different username.')
-            return redirect(url_for('main.signup'))
+            response = make_response(render_template('signup.html'))
+            response.status_code = 400
+            return response
 
         # Check if the email or username already exists in the database
         existing_email = User.query.filter_by(email=email).first()
         if existing_email:
             flash('Email already exists. Please choose a different email.')
-            return redirect(url_for('main.signup'))
+            response = make_response(render_template('signup.html'))
+            response.status_code = 400
+            return response
 
         # Create a new user
         new_user = User(

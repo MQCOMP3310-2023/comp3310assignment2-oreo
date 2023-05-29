@@ -1,7 +1,7 @@
 import pytest
 from flask import Flask, url_for
 from . import create_app
-from .models import Restaurant, Rating
+from .models import Restaurant, Rating, User
 
 @pytest.fixture
 def client():
@@ -12,6 +12,20 @@ def client():
     with app.test_client() as client:
         with app.app_context():
             yield client
+            
+def test_sql_injection_protection_new_restaurant(client):
+    # Submit a new restaurant with an SQL Injection attempt in its name
+    sql_injection_attempt = "Test'; DROP TABLE users; --"
+    response = client.post(url_for('main.new_restaurant'), data={'name': sql_injection_attempt})
+
+    # The application should reject the request
+    assert response.status_code == 401 # Unauthorized
+
+    # Check that the users table still exists
+    try:
+        User.query.first()
+    except Exception as e:
+        pytest.fail(f"SQL Injection attempt succeeded: {e}")
 
 def test_submit_valid_rating(client):
     # Get a restaurant to rate

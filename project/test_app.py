@@ -28,6 +28,9 @@ def test_sql_injection_protection_new_restaurant(client):
         pytest.fail(f"SQL Injection attempt succeeded: {e}")
 
 def test_submit_valid_rating(client):
+    # login as a user to rate the restaurant
+    client.post('/login', data={'username': 'public', 'password': 'password'})
+    
     # Get a restaurant to rate
     restaurant = Restaurant.query.first()
     assert restaurant is not None
@@ -42,6 +45,9 @@ def test_submit_valid_rating(client):
     assert rating.value == 4
 
 def test_submit_invalid_rating(client):
+    # login as a user to rate the restaurant
+    client.post('/login', data={'username': 'public', 'password': 'password'})
+    
     # Get a restaurant to rate
     restaurant = Restaurant.query.first()
     assert restaurant is not None

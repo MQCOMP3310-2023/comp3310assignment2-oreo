@@ -68,8 +68,10 @@ def editRestaurant(restaurant_id):
             (user_restaurant_association.c.user_id == current_user.UserID) &
             (user_restaurant_association.c.restaurant_id == restaurant_id)
         )).first()
-    if not association:
-        abort(403) # Forbidden
+    
+    if current_user.Role != 2:
+        if not association:
+            abort(403) # Forbidden
     
     edited_restaurant = db.session.query(
         Restaurant).filter_by(id=restaurant_id).one()
@@ -93,8 +95,10 @@ def deleteRestaurant(restaurant_id):
             (user_restaurant_association.c.user_id == current_user.UserID) &
             (user_restaurant_association.c.restaurant_id == restaurant_id)
         )).first()
-    if not association:
-        abort(403) # Forbidden
+    
+    if current_user.Role != 2:
+        if not association:
+            abort(403) # Forbidden
     
     restaurant_to_delete = db.session.query(
         Restaurant).filter_by(id=restaurant_id).one()
@@ -145,8 +149,10 @@ def newMenuItem(restaurant_id):
             (user_restaurant_association.c.user_id == current_user.UserID) &
             (user_restaurant_association.c.restaurant_id == restaurant_id)
         )).first()
-    if not association:
-        abort(403) # Forbidden
+    
+    if current_user.Role != 2:
+        if not association:
+            abort(403) # Forbidden
     
     restaurant = db.session.query(Restaurant).filter_by(id=restaurant_id).one()
     if request.method == 'POST':
@@ -172,8 +178,10 @@ def editMenuItem(restaurant_id, menu_id):
             (user_restaurant_association.c.user_id == current_user.UserID) &
             (user_restaurant_association.c.restaurant_id == restaurant_id)
         )).first()
-    if not association:
-        abort(403) # Forbidden
+    
+    if current_user.Role != 2:
+        if not association:
+            abort(403) # Forbidden
         
     edited_item = db.session.query(MenuItem).filter_by(id=menu_id).one()
     restaurant = db.session.query(Restaurant).filter_by(id=restaurant_id).one()
@@ -204,10 +212,12 @@ def deleteMenuItem(restaurant_id, menu_id):
     association = db.session.execute(
         user_restaurant_association.select().where(
             (user_restaurant_association.c.user_id == current_user.UserID) &
-            (user_restaurant_association.c.restaurant_id == restaurant_id)
+            (user_restaurant_association.c.restaurant_id == restaurant_id) 
         )).first()
-    if not association:
-        abort(403) # Forbidden
+    
+    if current_user.Role != 2:
+        if not association:
+            abort(403) # Forbidden
 
     item_to_delete = db.session.query(MenuItem).filter_by(id=menu_id).one()
     if request.method == 'POST':

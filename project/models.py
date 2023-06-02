@@ -13,7 +13,7 @@ user_restaurant_association = Table('user_restaurant_association', db.Model.meta
 
 
 class Restaurant(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
     name = db.Column(db.String(250), nullable=False)
     owners = db.relationship(
         'User', secondary=user_restaurant_association, overlaps="restaurant")

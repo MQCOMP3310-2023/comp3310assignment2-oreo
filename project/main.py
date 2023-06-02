@@ -80,6 +80,7 @@ def edit_restaurant(restaurant_id):  #Fixed the naming conventions
         if request.form['name']:
             edited_restaurant.name = request.form['name']
             flash('Restaurant Successfully Edited %s' % edited_restaurant.name)
+            db.session.commit()
             return redirect(url_for(main_show_restaurants))    #Fixed the naming conventions
     else:
         return render_template('editRestaurant.html', restaurant=edited_restaurant)
@@ -105,9 +106,13 @@ def delete_restaurant(restaurant_id):       #Fixed the naming conventions
         Restaurant).filter_by(id=restaurant_id).one()
     ratings = db.session.query(Rating).filter_by(
         restaurant_id=restaurant_id).all()
+    menu_items = db.session.query(MenuItem).filter_by(
+        restaurant_id=restaurant_id).all()
     if request.method == 'POST':
         for rating in ratings:
             db.session.delete(rating)
+        for menu_item in menu_items:
+            db.session.delete(menu_item)
         db.session.delete(restaurant_to_delete)
         flash('%s Successfully Deleted' % restaurant_to_delete.name)
         db.session.commit()

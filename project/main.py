@@ -69,8 +69,7 @@ def edit_restaurant(restaurant_id):  #Fixed the naming conventions
             (user_restaurant_association.c.restaurant_id == restaurant_id)
         )).first()
     
-    if current_user.Role != 2:
-        if not association:
+    if current_user.Role != 2 and not association:
             abort(403) # Forbidden
     
     edited_restaurant = db.session.query(
@@ -370,7 +369,8 @@ def rate_restaurant(restaurant_id):
         abort(400)
 
     # Create a new rating
-    new_rating = Rating(value=value, restaurant_id=restaurant_id)
+    new_rating = Rating(value=value, restaurant_id=restaurant_id,
+                        user_id=current_user.UserID)
     db.session.add(new_rating)
     db.session.commit()
     flash('Your rating has been submitted.')

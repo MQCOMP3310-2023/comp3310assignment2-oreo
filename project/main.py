@@ -161,7 +161,7 @@ def new_menu_item(restaurant_id):   #Fixed the naming conventions
         if not association:
             abort(403) # Forbidden
     
-    restaurant = db.session.query(Restaurant).filter_by(id=restaurant_id).one()
+    # restaurant = db.session.query(Restaurant).filter_by(id=restaurant_id).one()           #UNUSED VARIABLE
     if request.method == 'POST':
         new_item = MenuItem(name=request.form['name'], description=request.form['description'],
                            price=request.form['price'], course=request.form['course'], restaurant_id=restaurant_id)
@@ -191,7 +191,7 @@ def edit_menu_item(restaurant_id, menu_id):  #Fixed the naming conventions
             abort(403) # Forbidden
         
     edited_item = db.session.query(MenuItem).filter_by(id=menu_id).one()
-    restaurant = db.session.query(Restaurant).filter_by(id=restaurant_id).one()
+    # restaurant = db.session.query(Restaurant).filter_by(id=restaurant_id).one()           #UNUSED VARIABLE
     if request.method == 'POST':
         if request.form['name']:
             edited_item.name = request.form['name']
@@ -213,7 +213,7 @@ def edit_menu_item(restaurant_id, menu_id):  #Fixed the naming conventions
 @main.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/delete', methods=['GET', 'POST'])
 # @login_required
 def delete_menu_item(restaurant_id, menu_id):        #Fixed the naming conventions
-    restaurant = db.session.query(Restaurant).filter_by(id=restaurant_id).one()
+    # restaurant = db.session.query(Restaurant).filter_by(id=restaurant_id).one()               #UNUSED VARIABLE
     
     # Check if the current user is the owner of the restaurant
     association = db.session.execute(

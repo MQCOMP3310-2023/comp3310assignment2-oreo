@@ -96,8 +96,7 @@ def delete_restaurant(restaurant_id):       #Fixed the naming conventions
             (user_restaurant_association.c.restaurant_id == restaurant_id)
         )).first()
     
-    if current_user.Role != 2:
-        if not association:
+    if current_user.Role != 2 and not association:
             abort(403) # Forbidden
     
     restaurant_to_delete = db.session.query(
@@ -155,8 +154,7 @@ def new_menu_item(restaurant_id):   #Fixed the naming conventions
             (user_restaurant_association.c.restaurant_id == restaurant_id)
         )).first()
     
-    if current_user.Role != 2:
-        if not association:
+    if current_user.Role != 2 and not association:
             abort(403) # Forbidden
     
     # restaurant = db.session.query(Restaurant).filter_by(id=restaurant_id).one()           #UNUSED VARIABLE
@@ -227,8 +225,7 @@ def delete_menu_item(restaurant_id, menu_id):        #Fixed the naming conventio
             (user_restaurant_association.c.restaurant_id == restaurant_id) 
         )).first()
     
-    if current_user.Role != 2:
-        if not association:
+    if current_user.Role != 2 and not association:
             abort(403) # Forbidden
 
     item_to_delete = db.session.query(MenuItem).filter_by(id=menu_id).one()

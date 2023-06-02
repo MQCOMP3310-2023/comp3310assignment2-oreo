@@ -50,17 +50,14 @@ class MenuItem(db.Model):
 
 # general work - everything below is not original
 
-
+# sensitive information that shouldnt be stored removed
 class User(UserMixin, db.Model):
     __tablename__ = 'Users'
     UserID = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(64), nullable=False)
     email = db.Column(db.String(250), nullable=False)
     PasswordHash = db.Column(db.String(128), nullable=False)
-    FirstName = db.Column(db.String(250), nullable=False)
-    LastName = db.Column(db.String(250), nullable=False)
     Role = db.Column(db.Integer, nullable=False)
-    DOB = db.Column(db.DateTime, nullable=False)
     restaurants = db.relationship(
         'Restaurant', secondary=user_restaurant_association, overlaps="owners")
 

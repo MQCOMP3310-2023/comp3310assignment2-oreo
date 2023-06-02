@@ -9,11 +9,8 @@ def populate_db():
     admin_user = User(
         email='admin@example.com',
         username='admin',
-        FirstName='Admin',
-        LastName='User',
         PasswordHash=generate_password_hash('password'),
-        Role=2,
-        DOB=datetime(2000, 1, 1)
+        Role=2
     )
     db.session.add(admin_user)
 
@@ -21,11 +18,8 @@ def populate_db():
     owner_user = User(
         email='owner@example.com',
         username='owner',
-        FirstName='Owner',
-        LastName='User',
         PasswordHash=generate_password_hash('password'),
-        Role=1,
-        DOB=datetime(2000, 1, 1)
+        Role=1
     )
     db.session.add(owner_user)
 
@@ -33,11 +27,8 @@ def populate_db():
     public_user = User(
         email='public@example.com',
         username='public',
-        FirstName='Public',
-        LastName='User',
         PasswordHash=generate_password_hash('password'),
-        Role=0,
-        DOB=datetime(2000, 1, 1)
+        Role=0
     )
     db.session.add(public_user)
     #Menu for UrbanBurger

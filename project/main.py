@@ -266,16 +266,15 @@ def logout():
 
 signup_html = 'signup.html'    #created new variable to reference signup.html
 
+# sensitive information non required removed
 @main.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
         email = request.form['email']
         username = request.form['username']
-        first_name = request.form['first_name']
-        last_name = request.form['last_name']
-        dob = datetime.strptime(request.form['dob'], '%Y-%m-%d')
         password = request.form['password']
         # Check if the password meets the complexity requirements
+        # was advised to look into nist 800 and seems its already meeting the requirements excluding repeating letters and dictionaries to show weaknesses 
         if len(password) < 8:
             flash('Password must be at least 8 characters long.')
             response = make_response(render_template(signup_html))
@@ -325,11 +324,8 @@ def signup():
         new_user = User(
             email=email,
             username=username,
-            FirstName=first_name,
-            LastName=last_name,
             PasswordHash=generate_password_hash(password),
             Role=0,
-            DOB=dob
         )
 
         # Add the user to the database

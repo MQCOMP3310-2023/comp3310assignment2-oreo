@@ -62,7 +62,7 @@
 {% endif %}
 
 			<!-- Allow anyone to submit ratings -->
-			{% if current_user.is_authenticated %}
+			{% if current_user.Role == 0 %}
 			<div style="display: inline-block;">
 				Rate this restaurant:
 				<form action="{{ url_for('main.rate_restaurant', restaurant_id=restaurant.id) }}" method="post">

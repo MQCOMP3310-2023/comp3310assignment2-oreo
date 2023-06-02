@@ -3,7 +3,6 @@ from .models import Restaurant, MenuItem, User, Rating, user_restaurant_associat
 from sqlalchemy import asc
 from . import db
 # additional imports
-from datetime import datetime
 from flask_login import current_user, login_user,login_required, logout_user
 from flask import flash, abort
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -353,6 +352,17 @@ def signup():
 
 @main.route('/restaurant/<int:restaurant_id>/rate', methods=['POST'])
 def rate_restaurant(restaurant_id):
+    # only normal users can do thsi 
+    if current_user.Role != 0:
+        abort(403)  # Forbidden
+
+    # Check if the current user has already rated the restaurant
+    existing_rating = db.session.query(Rating).filter_by(
+        restaurant_id=restaurant_id, user_id=current_user.UserID).first()
+    if existing_rating:
+        flash('You have already submitted a rating for this restaurant.')
+        return redirect(url_for(main_show_menu, restaurant_id=restaurant_id))
+
     value = int(request.form['value'])
     
     # Check if the rating value is between 1 and 5

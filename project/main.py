@@ -163,6 +163,13 @@ def new_menu_item(restaurant_id):   #Fixed the naming conventions
     
     restaurant = db.session.query(Restaurant).filter_by(id=restaurant_id).one()
     if request.method == 'POST':
+        name = request.form.get('name')
+        description = request.form.get('description')
+        price = request.form.get('price')
+        course = request.form.get('course')
+        if not name or not description or not price or not course:
+            flash('All fields are required.')
+            return render_template('newmenuitem.html', restaurant_id=restaurant_id)
         new_item = MenuItem(name=request.form['name'], description=request.form['description'],
                            price=request.form['price'], course=request.form['course'], restaurant_id=restaurant_id)
         db.session.add(new_item)

@@ -20,6 +20,15 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+# Check if the current user is the owner of the restaurant
+def is_owner(user_id, restaurant_id):
+    association = db.session.execute(
+        user_restaurant_association.select().where(
+            (user_restaurant_association.c.user_id == user_id) &
+            (user_restaurant_association.c.restaurant_id == restaurant_id)
+        )).first()
+    return association is not None
+
 # Show all restaurants
 
 main_show_restaurants = 'main.show_restaurants'        #created new variable to reference 'main.show.resturants
@@ -62,15 +71,9 @@ def new_restaurant():     #Fixed the naming conventions
 @login_required
 def edit_restaurant(restaurant_id):  #Fixed the naming conventions
     
-    # Check if the current user is the owner of the restaurant
-    association = db.session.execute(
-        user_restaurant_association.select().where(
-            (user_restaurant_association.c.user_id == current_user.UserID) &
-            (user_restaurant_association.c.restaurant_id == restaurant_id)
-        )).first()
-    
-    if current_user.Role != 2 and not association:
-            abort(403) # Forbidden
+    # Check if the current user is admin or owner of the restaurant
+    if current_user.Role != 2 and not is_owner(current_user.UserID, restaurant_id):
+        abort(403) # Forbidden
     
     edited_restaurant = db.session.query(
         Restaurant).filter_by(id=restaurant_id).one()
@@ -89,16 +92,9 @@ def edit_restaurant(restaurant_id):  #Fixed the naming conventions
 @login_required
 def delete_restaurant(restaurant_id):       #Fixed the naming conventions
     
-    # Check if the current user is the owner of the restaurant
-    association = db.session.execute(
-        user_restaurant_association.select().where(
-            (user_restaurant_association.c.user_id == current_user.UserID) &
-            (user_restaurant_association.c.restaurant_id == restaurant_id)
-        )).first()
-    
-    if current_user.Role != 2:
-        if not association:
-            abort(403) # Forbidden
+    # Check if the current user is admin or owner of the restaurant
+    if current_user.Role != 2 and not is_owner(current_user.UserID, restaurant_id):
+        abort(403) # Forbidden
     
     restaurant_to_delete = db.session.query(
         Restaurant).filter_by(id=restaurant_id).one()
@@ -132,12 +128,7 @@ def show_menu(restaurant_id):       #Fixed the naming conventions
     # additional
     # Check if the user is authenticated
     if current_user.is_authenticated:
-        association = db.session.execute(
-            user_restaurant_association.select().where(
-                (user_restaurant_association.c.user_id == current_user.UserID) &
-                (user_restaurant_association.c.restaurant_id == restaurant_id)
-            )).first()
-        is_owner = association is not None
+        is_owner_value = is_owner(current_user.UserID, restaurant_id)
     else:
         is_owner = False
     is_favorite = False
@@ -156,16 +147,9 @@ def show_menu(restaurant_id):       #Fixed the naming conventions
 @login_required
 def new_menu_item(restaurant_id):   #Fixed the naming conventions
     
-    # Check if the current user is the owner of the restaurant
-    association = db.session.execute(
-        user_restaurant_association.select().where(
-            (user_restaurant_association.c.user_id == current_user.UserID) &
-            (user_restaurant_association.c.restaurant_id == restaurant_id)
-        )).first()
-    
-    if current_user.Role != 2:
-        if not association:
-            abort(403) # Forbidden
+    # Check if the current user is admin or owner of the restaurant
+    if current_user.Role != 2 and not is_owner(current_user.UserID, restaurant_id):
+        abort(403) # Forbidden
     
     # restaurant = db.session.query(Restaurant).filter_by(id=restaurant_id).one()           #UNUSED VARIABLE
     if request.method == 'POST':
@@ -192,16 +176,9 @@ def new_menu_item(restaurant_id):   #Fixed the naming conventions
 @login_required
 def edit_menu_item(restaurant_id, menu_id):  #Fixed the naming conventions
 
-    # Check if the current user is the owner of the restaurant
-    association = db.session.execute(
-        user_restaurant_association.select().where(
-            (user_restaurant_association.c.user_id == current_user.UserID) &
-            (user_restaurant_association.c.restaurant_id == restaurant_id)
-        )).first()
-    
-    if current_user.Role != 2:
-        if not association:
-            abort(403) # Forbidden
+    # Check if the current user is admin or owner of the restaurant
+    if current_user.Role != 2 and not is_owner(current_user.UserID, restaurant_id):
+        abort(403) # Forbidden
         
     edited_item = db.session.query(MenuItem).filter_by(id=menu_id).one()
     # restaurant = db.session.query(Restaurant).filter_by(id=restaurant_id).one()           #UNUSED VARIABLE
@@ -228,16 +205,9 @@ def edit_menu_item(restaurant_id, menu_id):  #Fixed the naming conventions
 def delete_menu_item(restaurant_id, menu_id):        #Fixed the naming conventions
     # restaurant = db.session.query(Restaurant).filter_by(id=restaurant_id).one()               #UNUSED VARIABLE
     
-    # Check if the current user is the owner of the restaurant
-    association = db.session.execute(
-        user_restaurant_association.select().where(
-            (user_restaurant_association.c.user_id == current_user.UserID) &
-            (user_restaurant_association.c.restaurant_id == restaurant_id) 
-        )).first()
-    
-    if current_user.Role != 2:
-        if not association:
-            abort(403) # Forbidden
+    # Check if the current user is admin or owner of the restaurant
+    if current_user.Role != 2 and not is_owner(current_user.UserID, restaurant_id):
+        abort(403) # Forbidden
 
     item_to_delete = db.session.query(MenuItem).filter_by(id=menu_id).one()
     if request.method == 'POST':

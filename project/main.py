@@ -130,7 +130,7 @@ def show_menu(restaurant_id):       #Fixed the naming conventions
     if current_user.is_authenticated:
         is_owner_value = is_owner(current_user.UserID, restaurant_id)
     else:
-        is_owner = False
+        is_owner_value = False
     is_favorite = False
     if current_user.is_authenticated:
         # Check if the current user has saved this restaurant as a favorite
@@ -139,7 +139,7 @@ def show_menu(restaurant_id):       #Fixed the naming conventions
             restaurant_id=restaurant_id
         ).first()
         is_favorite = existing_favorite is not None
-    return render_template('menu.html', items=items, restaurant=restaurant, is_owner=is_owner,is_favorite=is_favorite)
+    return render_template('menu.html', items=items, restaurant=restaurant, is_owner=is_owner_value,is_favorite=is_favorite)
 
 
 # Create a new menu item

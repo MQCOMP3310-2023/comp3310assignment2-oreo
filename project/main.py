@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session,make_response
-from .models import Restaurant, MenuItem, User, Rating, user_restaurant_association
+from .models import Restaurant, MenuItem, User, Rating, user_restaurant_association, Favorite
 from sqlalchemy import asc
 from . import db
 # additional imports
@@ -140,7 +140,15 @@ def show_menu(restaurant_id):       #Fixed the naming conventions
         is_owner = association is not None
     else:
         is_owner = False
-    return render_template('menu.html', items=items, restaurant=restaurant, is_owner=is_owner)
+    is_favorite = False
+    if current_user.is_authenticated:
+        # Check if the current user has saved this restaurant as a favorite
+        existing_favorite = Favorite.query.filter_by(
+            user_id=current_user.UserID,
+            restaurant_id=restaurant_id
+        ).first()
+        is_favorite = existing_favorite is not None
+    return render_template('menu.html', items=items, restaurant=restaurant, is_owner=is_owner,is_favorite=is_favorite)
 
 
 # Create a new menu item
@@ -276,6 +284,7 @@ def logout():
 
 signup_html = 'signup.html'    #created new variable to reference signup.html
 
+
 # sensitive information non required removed
 @main.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -376,3 +385,36 @@ def rate_restaurant(restaurant_id):
     flash('Your rating has been submitted.')
 
     return redirect(url_for(main_show_menu, restaurant_id=restaurant_id))
+
+
+# favorite function 
+@main.route('/restaurant/<int:restaurant_id>/favorite', methods=['POST'])
+@login_required
+def favorite_restaurant(restaurant_id):
+    # Check if the current user has already saved this restaurant as a favorite
+    existing_favorite = Favorite.query.filter_by(
+        user_id=current_user.UserID,
+        restaurant_id=restaurant_id
+    ).first()
+    if existing_favorite:
+        flash('You have already saved this restaurant as a favorite.')
+        return redirect(url_for(main_show_menu, restaurant_id=restaurant_id))
+
+    # Create a new favorite
+    new_favorite = Favorite(
+        user_id=current_user.UserID,
+        restaurant_id=restaurant_id
+    )
+    db.session.add(new_favorite)
+    db.session.commit()
+    flash('Restaurant saved as a favorite.')
+
+    return redirect(url_for(main_show_menu, restaurant_id=restaurant_id))
+
+# show favorite function 
+@main.route('/favorites')
+@login_required
+def show_favorites():
+    favorites = Favorite.query.filter_by(user_id=current_user.UserID).all()
+    return render_template('favorites.html', favorites=favorites)
+

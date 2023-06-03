@@ -17,6 +17,7 @@ class Restaurant(db.Model):
     name = db.Column(db.String(250), nullable=False)
     owners = db.relationship(
         'User', secondary=user_restaurant_association, overlaps="restaurant")
+    favorites = db.relationship('Favorite', back_populates='restaurant')
 
     @property
     def serialize(self):
@@ -60,6 +61,7 @@ class User(UserMixin, db.Model):
     Role = db.Column(db.Integer, nullable=False)
     restaurants = db.relationship(
         'Restaurant', secondary=user_restaurant_association, overlaps="owners")
+    favorites = db.relationship('Favorite', back_populates='user')
 
     @property
     def is_active(self):
@@ -91,3 +93,13 @@ class Rating(db.Model):
     restaurant = db.relationship(
         'Restaurant', backref=db.backref('restaurant_ratings', lazy=True))
     # user = db.relationship('User', backref=db.backref('ratings', lazy=True))
+
+class Favorite(db.Model):
+    __tablename__ = 'favorite'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.UserID'))
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
+  
+
+    user = db.relationship('User', back_populates='favorites')
+    restaurant = db.relationship('Restaurant', back_populates='favorites')

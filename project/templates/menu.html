@@ -37,7 +37,15 @@
         </ul>
         {% endif %}
     {% endwith %}
-
+	{% if current_user.is_authenticated %}
+	{% if is_favorite %}
+	  <p>You have saved this restaurant as a favorite.</p>
+	{% else %}
+	  <form action="{{ url_for('main.favorite_restaurant', restaurant_id=restaurant.id) }}" method="post">
+		<input type="submit" value="Save as Favorite">
+	  </form>
+	{% endif %}
+  {% endif %}
 </div>
 	<div class="row padding-top padding-bottom">
 		<div class="col-md-1"></div>

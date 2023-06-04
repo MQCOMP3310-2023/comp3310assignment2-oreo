@@ -329,30 +329,32 @@ def signup():
 
 
 @main.route('/restaurant/<int:restaurant_id>/rate', methods=['POST'])
+@login_required
 def rate_restaurant(restaurant_id):
-    # only normal users can do thsi 
+    # Only public users can rate restaurants
     if current_user.Role != 0:
         abort(403)  # Forbidden
-
-    # Check if the current user has already rated the restaurant
-    existing_rating = db.session.query(Rating).filter_by(
-        restaurant_id=restaurant_id, user_id=current_user.UserID).first()
-    if existing_rating:
-        flash('You have already submitted a rating for this restaurant.')
-        return redirect(url_for(main_show_menu, restaurant_id=restaurant_id))
 
     value = int(request.form['value'])
     
     # Check if the rating value is between 1 and 5
     if value < 1 or value > 5:
-        abort(400)
-
-    # Create a new rating
-    new_rating = Rating(value=value, restaurant_id=restaurant_id,
-                        user_id=current_user.UserID)
-    db.session.add(new_rating)
-    db.session.commit()
-    flash('Your rating has been submitted.')
+        return "Invalid rating", 400
+    else:
+        # Check if the current user has already rated the restaurant
+        existing_rating = db.session.query(Rating).filter_by(
+            restaurant_id=restaurant_id, user_id=current_user.UserID).first()
+        
+        if existing_rating:
+            flash('You have already submitted a rating for this restaurant.')
+            return redirect(url_for(main_show_menu, restaurant_id=restaurant_id))
+        else:
+            # Create a new rating
+            new_rating = Rating(value=value, restaurant_id=restaurant_id,
+                                user_id=current_user.UserID)
+            db.session.add(new_rating)
+            db.session.commit()
+            flash('Your rating has been submitted.')
 
     return redirect(url_for(main_show_menu, restaurant_id=restaurant_id))
 

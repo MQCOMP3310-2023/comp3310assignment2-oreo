@@ -92,7 +92,7 @@ class Rating(db.Model):
         'Users.UserID'), nullable=True)
     restaurant = db.relationship(
         'Restaurant', backref=db.backref('restaurant_ratings', lazy=True))
-    # user = db.relationship('User', backref=db.backref('ratings', lazy=True))
+   
 
 class Favorite(db.Model):
     __tablename__ = 'favorite'

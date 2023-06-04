@@ -5,6 +5,8 @@ from project.models import User
 from .models import Restaurant, Rating, User, Favorite
 from werkzeug.security import check_password_hash
 
+
+
 @pytest.fixture
 def client():
     app = create_app()
@@ -133,3 +135,4 @@ def test_hashed_passwords(client):
     user = User.query.filter_by(email='hashuser@example.com').first()
     assert user is not None
     assert check_password_hash(user.PasswordHash, 'Hashuser!2345')
+    # This is a just basic user for test purpose only!

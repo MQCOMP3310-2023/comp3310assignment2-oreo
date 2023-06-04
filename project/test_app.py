@@ -40,9 +40,6 @@ def test_singup_form(client):
     assert response.status_code == 200
 
 
-
-
-
 def test_submit_valid_rating(client):
     # login as public user
     client.post('/login', data={'username': 'public', 'password': 'password'})
@@ -107,4 +104,14 @@ def test_signup_with_missing_lowercase_letter(client):
         'password': 'PASSWORD123!'
     })
     assert response.status_code == 400  # Bad request
+
+
+def test_sql_injection_attack(client):
+    #test for sql injection attack
+    response = client.post('/signup', data = {
+        'email' : 'user@test.com"; drop table user; -- ',
+        'name' : 'hacker101',
+        'password' : 'test123!13B'
+    }, follow_redirects = True)
+    assert response.status_code == 400 
 

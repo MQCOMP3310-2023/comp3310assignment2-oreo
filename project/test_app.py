@@ -34,7 +34,7 @@ def test_submit_valid_rating(client):
     assert restaurant is not None
 
     # Submit a valid rating for the restaurant
-    response = client.post(url_for('main.rate_restaurant', restaurant_id=restaurant.id), data={'value': 5})
+    response = client.post(url_for('main.rate_restaurant', restaurant_id=restaurant.id), data={'value': 4})
     assert response.status_code == 302  # Redirect to the restaurant menu page
 
     # Check that the rating was added to the database
@@ -59,7 +59,7 @@ def test_signup_with_valid_credentials(client):
         'username': 'testuser',
         'password': 'Password123!'
     })
-    assert response.status_code == 302  # Redirect to the login page
+    assert response.status_code == 302  # Redirect to the main page
 
 def test_signup_with_short_password(client):
     # Submit a signup form with a short password

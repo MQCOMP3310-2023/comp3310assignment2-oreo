@@ -15,13 +15,12 @@ def client():
         with app.app_context():
             yield client
 
-def test_homepage_redirect(client):
+def test_home_page_redirect(client):
     # test the home page redirect
     response = client.get('/', follow_redirects = True)
     assert response.status_code == 200
 
-
-def test_singup_form(client):
+def test_sing_up_form(client):
     # test the signup form
     response = client.get('/signup')
     assert response.status_code == 200
@@ -123,13 +122,13 @@ def test_sql_injection_attack(client):
 
 
 def test_hashed_passwords(client):
+    #test to ensure that our password is hashed. 
     response = client.post('/signup', data={
         'email': 'hashuser@example.com',
         'username': 'hashuser',
         'password': 'Hashuser!2345'
     })
     assert response.status_code == 302
-
 
     user = User.query.filter_by(email='hashuser@example.com').first()
     assert user is not None

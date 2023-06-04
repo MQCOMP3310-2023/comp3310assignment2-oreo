@@ -339,15 +339,14 @@ def rate_restaurant(restaurant_id):
     
     # Check if the rating value is between 1 and 5
     if value < 1 or value > 5:
-        return "Invalid rating", 400
+        abort(400)
     else:
         # Check if the current user has already rated the restaurant
         existing_rating = db.session.query(Rating).filter_by(
             restaurant_id=restaurant_id, user_id=current_user.UserID).first()
         
         if existing_rating:
-            flash('You have already submitted a rating for this restaurant.')
-            return redirect(url_for(main_show_menu, restaurant_id=restaurant_id))
+            flash('You have already submitted a rating for this restaurant.')        
         else:
             # Create a new rating
             new_rating = Rating(value=value, restaurant_id=restaurant_id,

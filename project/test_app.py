@@ -14,22 +14,7 @@ def client():
     with app.test_client() as client:
         with app.app_context():
             yield client
-            
-# def test_sql_injection_protection_new_restaurant(client):
-#     # Submit a new restaurant with an SQL Injection attempt in its name
-#     sql_injection_attempt = "Test'; DROP TABLE users; --"
-#     response = client.post(url_for('main.new_restaurant'), data={'name': sql_injection_attempt})
 
-#     # The application should reject the request
-#     assert response.status_code == 401 # Unauthorized
-
-#     # Check that the users table still exists
-#     try:
-#         User.query.first()
-#     except Exception as e:
-#         pytest.fail(f"SQL Injection attempt succeeded: {e}")
-
- 
 def test_homepage_redirect(client):
     # test the home page redirect
     response = client.get('/', follow_redirects = True)
@@ -41,6 +26,17 @@ def test_singup_form(client):
     response = client.get('/signup')
     assert response.status_code == 200
 
+def test_submit_invalid_rating(client):
+    # login as public user
+    client.post('/login', data={'username': 'public', 'password': 'password'})
+
+    # Get a restaurant to rate
+    restaurant = Restaurant.query.first()
+    assert restaurant is not None
+
+    # Submit an invalid rating for the restaurant
+    response = client.post(url_for('main.rate_restaurant', restaurant_id=restaurant.id), data={'value': 6})
+    assert response.status_code == 400  # Bad request
 
 def test_submit_valid_rating(client):
     # login as public user
@@ -58,18 +54,26 @@ def test_submit_valid_rating(client):
     rating = Rating.query.filter_by(restaurant_id=restaurant.id).first()
     assert rating is not None
     assert rating.value == 4
-
-def test_submit_invalid_rating(client):
+    
+def test_resubmitting_rating_not_allowed(client):
     # login as public user
     client.post('/login', data={'username': 'public', 'password': 'password'})
-
+    
     # Get a restaurant to rate
     restaurant = Restaurant.query.first()
     assert restaurant is not None
+    
+    existing_ratings_count = Rating.query.filter_by(restaurant_id=restaurant.id).count()
 
-    # Submit an invalid rating for the restaurant
-    response = client.post(url_for('main.rate_restaurant', restaurant_id=restaurant.id), data={'value': 6})
-    assert response.status_code == 400  # Bad request
+    # Submit a valid rating for the restaurant
+    response = client.post(url_for('main.rate_restaurant', restaurant_id=restaurant.id), data={'value': 5}, follow_redirects=True)
+    
+    # Check if there's a message "You have already submitted a rating for this restaurant."
+    assert b'You have already submitted a rating for this restaurant.' in response.data
+
+    # Check if the total number of ratings for the restaurant has not increased
+    new_ratings_count = Rating.query.filter_by(restaurant_id=restaurant.id).count()
+    assert new_ratings_count == existing_ratings_count
 
 def test_signup_with_valid_credentials(client):
     # Submit a valid signup form

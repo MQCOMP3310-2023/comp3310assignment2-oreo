@@ -1,7 +1,6 @@
 from project import db, create_app, models
 from project.models import Restaurant, MenuItem,User,Rating,user_restaurant_association
 from werkzeug.security import generate_password_hash
-from datetime import datetime
 from random import randint
 def populate_db():
     
@@ -244,6 +243,8 @@ def populate_db():
     
     # Generate random ratings for restaurants with IDs 1-7
     for restaurant_id in range(1, 8):
+        first_rating = Rating(value=4, restaurant_id=restaurant_id)
+        db.session.add(first_rating)
         for _ in range(3):
             rating_value = randint(1, 5)
             rating = Rating(value=rating_value, restaurant_id=restaurant_id)

@@ -1,7 +1,9 @@
 import pytest
 from flask import Flask, url_for
 from . import create_app
+from project.models import User
 from .models import Restaurant, Rating, User, Favorite
+from werkzeug.security import check_password_hash
 
 @pytest.fixture
 def client():
@@ -109,9 +111,22 @@ def test_signup_with_missing_lowercase_letter(client):
 def test_sql_injection_attack(client):
     #test for sql injection attack
     response = client.post('/signup', data = {
-        'email' : 'user@test.com"; drop table user; -- ',
+        'email' : 'userhacker@test.com"; drop table user; -- ',
         'name' : 'hacker101',
-        'password' : 'test123!13B'
+        'password' : 'Test123!45'
     }, follow_redirects = True)
     assert response.status_code == 400 
 
+
+def test_hashed_passwords(client):
+    response = client.post('/signup', data={
+        'email': 'hashuser@example.com',
+        'username': 'hashuser',
+        'password': 'Hashuser!2345'
+    })
+    assert response.status_code == 302
+
+
+    user = User.query.filter_by(email='hashuser@example.com').first()
+    assert user is not None
+    assert check_password_hash(user.PasswordHash, 'Hashuser!2345')

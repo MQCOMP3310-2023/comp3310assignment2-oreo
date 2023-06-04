@@ -27,6 +27,22 @@ def client():
 #     except Exception as e:
 #         pytest.fail(f"SQL Injection attempt succeeded: {e}")
 
+ 
+def test_homepage_redirect(client):
+    # test the home page redirect
+    response = client.get('/', follow_redirects = True)
+    assert response.status_code == 200
+
+
+def test_singup_form(client):
+    # test the signup form
+    response = client.get('/signup')
+    assert response.status_code == 200
+
+
+
+
+
 def test_submit_valid_rating(client):
     # login as public user
     client.post('/login', data={'username': 'public', 'password': 'password'})

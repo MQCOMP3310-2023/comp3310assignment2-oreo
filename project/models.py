@@ -13,7 +13,7 @@ user_restaurant_association = Table('user_restaurant_association', db.Model.meta
 
 
 class Restaurant(db.Model):
-    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(250), nullable=False)
     owners = db.relationship(
         'User', secondary=user_restaurant_association, overlaps="restaurant")
@@ -92,14 +92,13 @@ class Rating(db.Model):
         'Users.UserID'), nullable=True)
     restaurant = db.relationship(
         'Restaurant', backref=db.backref('restaurant_ratings', lazy=True))
-   
+
 
 class Favorite(db.Model):
     __tablename__ = 'favorite'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.UserID'))
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
-  
 
     user = db.relationship('User', back_populates='favorites')
     restaurant = db.relationship('Restaurant', back_populates='favorites')

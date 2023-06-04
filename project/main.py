@@ -1,9 +1,9 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, session,make_response
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session, make_response
 from .models import Restaurant, MenuItem, User, Rating, user_restaurant_association, Favorite
 from sqlalchemy import asc
 from . import db
 # additional imports
-from flask_login import current_user, login_user,login_required, logout_user
+from flask_login import current_user, login_user, login_required, logout_user
 from flask import flash, abort
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
@@ -21,6 +21,8 @@ def login_required(f):
     return decorated_function
 
 # Check if the current user is the owner of the restaurant
+
+
 def is_owner(user_id, restaurant_id):
     association = db.session.execute(
         user_restaurant_association.select().where(
@@ -31,11 +33,14 @@ def is_owner(user_id, restaurant_id):
 
 # Show all restaurants
 
-main_show_restaurants = 'main.show_restaurants'        #created new variable to reference 'main.show.resturants
+
+# created new variable to reference 'main.show.resturants
+main_show_restaurants = 'main.show_restaurants'
+
 
 @main.route('/')
 @main.route('/restaurant/')
-def show_restaurants():      #Fixed the naming conventions
+def show_restaurants():  # Fixed the naming conventions
     restaurants = db.session.query(Restaurant).order_by(asc(Restaurant.name))
     return render_template('restaurants.html', restaurants=restaurants)
 
@@ -43,24 +48,26 @@ def show_restaurants():      #Fixed the naming conventions
 # Create a new restaurant
 @main.route('/restaurant/new/', methods=['GET', 'POST'])
 @login_required
-def new_restaurant():     #Fixed the naming conventions
+def new_restaurant():  # Fixed the naming conventions
     if request.method == 'POST':
         new_restaurant = Restaurant(name=request.form['name'])
-        db.session.add(new_restaurant)      #Fixed the naming conventions
+        db.session.add(new_restaurant)  # Fixed the naming conventions
         db.session.commit()
 
         db.session.execute(
             user_restaurant_association.insert().values(
                 user_id=current_user.UserID,
-                restaurant_id=new_restaurant.id     #Fixed the naming conventions
+                restaurant_id=new_restaurant.id  # Fixed the naming conventions
             )
         )
         db.session.commit()
         if current_user.Role == 0:
             current_user.Role = 1  # change the role of the current user
         db.session.commit()  # commit the changes to the database
-        flash('New Restaurant %s Successfully Created' % new_restaurant.name)       #Fixed the naming conventions
-        return redirect(url_for(main_show_restaurants))       #Fixed the naming conventions
+        flash('New Restaurant %s Successfully Created' %
+              new_restaurant.name)  # Fixed the naming conventions
+        # Fixed the naming conventions
+        return redirect(url_for(main_show_restaurants))
     else:
         return render_template('newRestaurant.html')
 
@@ -69,12 +76,12 @@ def new_restaurant():     #Fixed the naming conventions
 
 @main.route('/restaurant/<int:restaurant_id>/edit/', methods=['GET', 'POST'])
 @login_required
-def edit_restaurant(restaurant_id):  #Fixed the naming conventions
-    
+def edit_restaurant(restaurant_id):  # Fixed the naming conventions
+
     # Check if the current user is admin or owner of the restaurant
     if current_user.Role != 2 and not is_owner(current_user.UserID, restaurant_id):
-        abort(403) # Forbidden
-    
+        abort(403)  # Forbidden
+
     edited_restaurant = db.session.query(
         Restaurant).filter_by(id=restaurant_id).one()
     if request.method == 'POST':
@@ -82,7 +89,8 @@ def edit_restaurant(restaurant_id):  #Fixed the naming conventions
             edited_restaurant.name = request.form['name']
             flash('Restaurant Successfully Edited %s' % edited_restaurant.name)
             db.session.commit()
-            return redirect(url_for(main_show_restaurants))    #Fixed the naming conventions
+            # Fixed the naming conventions
+            return redirect(url_for(main_show_restaurants))
     else:
         return render_template('editRestaurant.html', restaurant=edited_restaurant)
 
@@ -90,12 +98,12 @@ def edit_restaurant(restaurant_id):  #Fixed the naming conventions
 # Delete a restaurant
 @main.route('/restaurant/<int:restaurant_id>/delete/', methods=['GET', 'POST'])
 @login_required
-def delete_restaurant(restaurant_id):       #Fixed the naming conventions
-    
+def delete_restaurant(restaurant_id):  # Fixed the naming conventions
+
     # Check if the current user is admin or owner of the restaurant
     if current_user.Role != 2 and not is_owner(current_user.UserID, restaurant_id):
-        abort(403) # Forbidden
-    
+        abort(403)  # Forbidden
+
     restaurant_to_delete = db.session.query(
         Restaurant).filter_by(id=restaurant_id).one()
     ratings = db.session.query(Rating).filter_by(
@@ -110,18 +118,21 @@ def delete_restaurant(restaurant_id):       #Fixed the naming conventions
         db.session.delete(restaurant_to_delete)
         flash('%s Successfully Deleted' % restaurant_to_delete.name)
         db.session.commit()
-        return redirect(url_for(main_show_restaurants, restaurant_id=restaurant_id))           #Fixed the naming conventions
+        # Fixed the naming conventions
+        return redirect(url_for(main_show_restaurants, restaurant_id=restaurant_id))
     else:
         return render_template('deleteRestaurant.html', restaurant=restaurant_to_delete)
 
 
 # Show a restaurant menu
 
-main_show_menu ='main.show_menu'     #created new variable to reference main.show.menu
+# created new variable to reference main.show.menu
+main_show_menu = 'main.show_menu'
+
 
 @main.route('/restaurant/<int:restaurant_id>/')
 @main.route('/restaurant/<int:restaurant_id>/menu/')
-def show_menu(restaurant_id):       #Fixed the naming conventions
+def show_menu(restaurant_id):  # Fixed the naming conventions
     restaurant = db.session.query(Restaurant).filter_by(id=restaurant_id).one()
     items = db.session.query(MenuItem).filter_by(
         restaurant_id=restaurant_id).all()
@@ -139,19 +150,18 @@ def show_menu(restaurant_id):       #Fixed the naming conventions
             restaurant_id=restaurant_id
         ).first()
         is_favorite = existing_favorite is not None
-    return render_template('menu.html', items=items, restaurant=restaurant, is_owner=is_owner_value,is_favorite=is_favorite)
+    return render_template('menu.html', items=items, restaurant=restaurant, is_owner=is_owner_value, is_favorite=is_favorite)
 
 
 # Create a new menu item
 @main.route('/restaurant/<int:restaurant_id>/menu/new/', methods=['GET', 'POST'])
 @login_required
-def new_menu_item(restaurant_id):   #Fixed the naming conventions
-    
+def new_menu_item(restaurant_id):  # Fixed the naming conventions
+
     # Check if the current user is admin or owner of the restaurant
     if current_user.Role != 2 and not is_owner(current_user.UserID, restaurant_id):
-        abort(403) # Forbidden
-    
-   
+        abort(403)  # Forbidden
+
     if request.method == 'POST':
         name = request.form.get('name')
         description = request.form.get('description')
@@ -161,7 +171,7 @@ def new_menu_item(restaurant_id):   #Fixed the naming conventions
             flash('All fields are required.')
             return render_template('newmenuitem.html', restaurant_id=restaurant_id)
         new_item = MenuItem(name=request.form['name'], description=request.form['description'],
-                           price=request.form['price'], course=request.form['course'], restaurant_id=restaurant_id)
+                            price=request.form['price'], course=request.form['course'], restaurant_id=restaurant_id)
         db.session.add(new_item)
         db.session.commit()
         flash('New Menu %s Item Successfully Created' % (new_item.name))
@@ -174,12 +184,12 @@ def new_menu_item(restaurant_id):   #Fixed the naming conventions
 
 @main.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/edit', methods=['GET', 'POST'])
 @login_required
-def edit_menu_item(restaurant_id, menu_id):  #Fixed the naming conventions
+def edit_menu_item(restaurant_id, menu_id):  # Fixed the naming conventions
 
     # Check if the current user is admin or owner of the restaurant
     if current_user.Role != 2 and not is_owner(current_user.UserID, restaurant_id):
-        abort(403) # Forbidden
-        
+        abort(403)  # Forbidden
+
     edited_item = db.session.query(MenuItem).filter_by(id=menu_id).one()
     if request.method == 'POST':
         if request.form['name']:
@@ -201,12 +211,11 @@ def edit_menu_item(restaurant_id, menu_id):  #Fixed the naming conventions
 # Delete a menu item
 @main.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/delete', methods=['GET', 'POST'])
 # @login_required
-def delete_menu_item(restaurant_id, menu_id):        #Fixed the naming conventions
-    
-    
+def delete_menu_item(restaurant_id, menu_id):  # Fixed the naming conventions
+
     # Check if the current user is admin or owner of the restaurant
     if current_user.Role != 2 and not is_owner(current_user.UserID, restaurant_id):
-        abort(403) # Forbidden
+        abort(403)  # Forbidden
 
     item_to_delete = db.session.query(MenuItem).filter_by(id=menu_id).one()
     if request.method == 'POST':
@@ -235,12 +244,14 @@ def login():
             login_user(user)
             session['logged_in'] = True
             flash('Logged in successfully.')
-            return redirect(url_for(main_show_restaurants))        #Fixed the naming conventions
+            # Fixed the naming conventions
+            return redirect(url_for(main_show_restaurants))
         else:
             # Invalid credentials
             flash('Invalid username or password.')
 
-    return redirect(url_for(main_show_restaurants))        #Fixed the naming conventions
+    # Fixed the naming conventions
+    return redirect(url_for(main_show_restaurants))
 
 
 @main.route('/logout')
@@ -248,10 +259,11 @@ def logout():
     session.pop('logged_in', None)
     logout_user()
     flash('Logged out successfully.')
-    return redirect(url_for(main_show_restaurants))        #Fixed the naming conventions
+    # Fixed the naming conventions
+    return redirect(url_for(main_show_restaurants))
 
 
-signup_html = 'signup.html'    #created new variable to reference signup.html
+signup_html = 'signup.html'  # created new variable to reference signup.html
 
 
 # sensitive information non required removed
@@ -262,7 +274,7 @@ def signup():
         username = request.form['username']
         password = request.form['password']
         # Check if the password meets the complexity requirements
-        # was advised to look into nist 800 and seems its already meeting the requirements excluding repeating letters and dictionaries to show weaknesses 
+        # was advised to look into nist 800 and seems its already meeting the requirements excluding repeating letters and dictionaries to show weaknesses
         if len(password) < 8:
             flash('Password must be at least 8 characters long.')
             response = make_response(render_template(signup_html))
@@ -335,7 +347,7 @@ def rate_restaurant(restaurant_id):
         abort(403)  # Forbidden
 
     value = int(request.form['value'])
-    
+
     # Check if the rating value is between 1 and 5
     if value < 1 or value > 5:
         abort(400)
@@ -343,9 +355,9 @@ def rate_restaurant(restaurant_id):
         # Check if the current user has already rated the restaurant
         existing_rating = db.session.query(Rating).filter_by(
             restaurant_id=restaurant_id, user_id=current_user.UserID).first()
-        
+
         if existing_rating:
-            flash('You have already submitted a rating for this restaurant.')        
+            flash('You have already submitted a rating for this restaurant.')
         else:
             # Create a new rating
             new_rating = Rating(value=value, restaurant_id=restaurant_id,
@@ -357,7 +369,7 @@ def rate_restaurant(restaurant_id):
     return redirect(url_for(main_show_menu, restaurant_id=restaurant_id))
 
 
-# favorite function 
+# favorite function
 @main.route('/restaurant/<int:restaurant_id>/favorite', methods=['POST'])
 @login_required
 def favorite_restaurant(restaurant_id):
@@ -381,10 +393,11 @@ def favorite_restaurant(restaurant_id):
 
     return redirect(url_for(main_show_menu, restaurant_id=restaurant_id))
 
-# show favorite function 
+# show favorite function
+
+
 @main.route('/favorites')
 @login_required
 def show_favorites():
     favorites = Favorite.query.filter_by(user_id=current_user.UserID).all()
     return render_template('favorites.html', favorites=favorites)
-
